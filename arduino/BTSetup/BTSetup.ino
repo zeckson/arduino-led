@@ -1,14 +1,14 @@
-#define ROBOT_NAME "RandomBot"
+const String DEV_NAME = "ArduinoBT";
 
-// If you haven't configured your device before use this
-//#define BLUETOOTH_SPEED 9600
-// http://forum.arduino.cc/index.php?topic=101452.0
-//#define BLUETOOTH_SPEED 38400
-// If you are modifying your existing configuration, use this:
- #define BLUETOOTH_SPEED 57600
+const long BAUD4 = 9600;
+const long BAUD7 = 57600;
+const long BAUD8 = 115200;
+
+// If you haven't configured your device before use BAUD4
+const long SPEED = BAUD8;
 
 #include <SoftwareSerial.h>
-//#include <HardwareSerial.h>
+#include <HardwareSerial.h>
 #include <USBAPI.h>
 
 // Swap RX/TX connections on bluetooth chip
@@ -70,7 +70,7 @@ void setup()
     ; // wait for serial port to connect. Needed for Leonardo only
   }
   Serial.println("Starting config");
-  mySerial.begin(BLUETOOTH_SPEED);
+  mySerial.begin(SPEED);
   delay(1000);
 
   // Should respond with OK
@@ -87,7 +87,7 @@ void setup()
 
   // Set the name to ROBOT_NAME
   mySerial.print("AT+NAME");
-  mySerial.print(ROBOT_NAME);
+  mySerial.print(DEV_NAME);
   waitForResponse();
 
   // Set baudrate to 57600
