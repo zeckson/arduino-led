@@ -8,6 +8,8 @@
  #define BLUETOOTH_SPEED 57600
 
 #include <SoftwareSerial.h>
+//#include <HardwareSerial.h>
+#include <USBAPI.h>
 
 // Swap RX/TX connections on bluetooth chip
 //   Pin 10 --> Bluetooth TX
@@ -38,6 +40,28 @@ String command;
     AT+BAUDC----1382400
 */
 
+void waitForResponse() {
+  delay(1000);
+  while (mySerial.available()) {
+    Serial.write(mySerial.read());
+  }
+  Serial.write("\n");
+}
+
+String readString() {
+  String content = "";
+  int character;
+
+  while(Serial.available()) {
+    character = Serial.read();
+    content.concat(character);
+  }
+
+  if (content != EMPTY_STR) {
+    Serial.println(content);
+  }
+  return content;
+}
 
 void setup()
 {
@@ -73,28 +97,6 @@ void setup()
   Serial.println("Done!");
 }
 
-void waitForResponse() {
-    delay(1000);
-    while (mySerial.available()) {
-      Serial.write(mySerial.read());
-    }
-    Serial.write("\n");
-}
-
-String readString() {
-  String content = "";
-  char character;
-
-  while(Serial.available()) {
-      character = Serial.read();
-      content.concat(character);
-  }
-
-  if (content != EMPTY_STR) {
-    Serial.println(content);
-  }
-  return content;
-}
 
 void loop() {
   switch (state) {
