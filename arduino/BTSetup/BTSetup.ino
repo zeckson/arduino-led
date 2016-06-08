@@ -41,7 +41,7 @@ String command;
 */
 
 void waitForResponse() {
-  delay(1000);
+  delay(2500);
   while (mySerial.available()) {
     Serial.write(mySerial.read());
   }
@@ -50,7 +50,7 @@ void waitForResponse() {
 
 String readString() {
   String content = "";
-  int character;
+  char character;
 
   while(Serial.available()) {
     character = Serial.read();
@@ -71,7 +71,6 @@ void setup()
   }
   Serial.println("Starting config");
   mySerial.begin(SPEED);
-  delay(1000);
 
   // Should respond with OK
   mySerial.print("AT");
@@ -91,7 +90,7 @@ void setup()
   waitForResponse();
 
   // Set baudrate to 57600
-  mySerial.print("AT+BAUD7");
+  mySerial.print("AT+BAUD8");
   waitForResponse();
 
   Serial.println("Done!");
