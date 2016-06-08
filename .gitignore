@@ -1,6 +1,9 @@
 #System files and dirs
 .DS_Store
 
+#Idea files
+.idea
+
 # Built application files
 *.apk
 *.ap_
