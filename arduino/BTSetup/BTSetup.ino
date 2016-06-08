@@ -14,6 +14,13 @@
 //   Pin 11 --> Bluetooth RX
 SoftwareSerial mySerial(10, 11); // RX, TX
 
+const String EMPTY_STR = "";
+
+const int INIT = 0;
+const int READ = 1;
+const int ERR = 2;
+int state = INIT;
+String command;
 
 /*
   The posible baudrates are:
@@ -74,4 +81,39 @@ void waitForResponse() {
     Serial.write("\n");
 }
 
-void loop() {}
+String readString() {
+  String content = "";
+  char character;
+
+  while(Serial.available()) {
+      character = Serial.read();
+      content.concat(character);
+  }
+
+  if (content != EMPTY_STR) {
+    Serial.println(content);
+  }
+  return content;
+}
+
+void loop() {
+  switch (state) {
+    case INIT:
+      Serial.println("Ready to read AT command");
+      state = READ;
+      break;
+    case READ:
+      command = readString();
+      if(command != EMPTY_STR) { 
+        mySerial.print(command);
+        waitForResponse();
+        state = INIT;
+      }
+      break;
+    default: 
+      Serial.println("Unknown state:" + state);
+    break;
+  }
+  
+  delay(100);
+  }
