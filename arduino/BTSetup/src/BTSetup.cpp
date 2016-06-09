@@ -2,16 +2,17 @@
 #include <Arduino.h>
 
 static const int DEFAULT_DELAY = 2000;
-const String DEV_NAME = "ArduinoBT";
+static const char *const DEV_NAME = "ArduinoBT";
+static const char *const DEV_PIN = "0000";
 
 const long BAUD4 = 9600;
 const long BAUD6 = 38400;
 const long BAUD7 = 57600;
 const long BAUD8 = 115200;
 
-const int SPEEDS_LEN = 5;
-// If you haven't configured your device before use BAUD4
-const long SPEEDS[SPEEDS_LEN] = {BAUD4, 19200, BAUD6, BAUD7, BAUD8};
+const int SPEEDS_LEN = 4;
+// Cycle over bauds to find current
+const long SPEEDS[SPEEDS_LEN] = {BAUD4, BAUD6, BAUD7, BAUD8};
 
 
 // Swap RX/TX connections on bluetooth chip
@@ -92,17 +93,16 @@ void setup() {
 
   while (!Serial) { ; // wait for serial port to connect. Needed for Leonardo only
   }
-  connect(BAUD7);
+  connect();
 
   // Should respond with its version
   btSerial.print("AT+VERSION");
   waitForResponse();
 
-  // Set pin to 0000
-  btSerial.print("AT+PIN0000");
+  btSerial.print("AT+PIN");
+  btSerial.print(DEV_PIN);
   waitForResponse();
 
-  // Set the name to ROBOT_NAME
   btSerial.print("AT+NAME");
   btSerial.print(DEV_NAME);
   waitForResponse();
