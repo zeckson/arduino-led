@@ -66,13 +66,17 @@ class BluetoothChatFragment : Fragment() {
 
     override fun onStart() {
         super.onStart()
-        // If BT is not on, request that it be enabled.
-        // setupChat() will then be called during onActivityResult
-        if (!mBluetoothAdapter!!.isEnabled) {
+        //In case we are running on emulator
+        if (mBluetoothAdapter == null) {
+            Toast.makeText(activity, "Bluetooth adapter is not found or forbidden", Toast.LENGTH_SHORT).show()
+            setupChat()
+        } else if (!mBluetoothAdapter!!.isEnabled) {
+            // If BT is not on, request that it be enabled.
+            // setupChat() will then be called during onActivityResult
             val enableIntent = Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE)
             startActivityForResult(enableIntent, REQUEST_ENABLE_BT)
-            // Otherwise, setup the chat session
         } else if (mChatService == null) {
+            // Otherwise, setup the chat session
             setupChat()
         }
     }

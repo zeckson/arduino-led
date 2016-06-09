@@ -13,12 +13,12 @@
   See the License for the specific language governing permissions and
   limitations under the License.
   -->
-<LinearLayout
-      xmlns:android="http://schemas.android.com/apk/res/android"
-      android:orientation="vertical"
-      android:layout_width="match_parent"
-      android:layout_height="match_parent"
-      android:id="@+id/sample_main_layout">
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:id="@+id/sample_main_layout">
 
     <ViewAnimator
           android:id="@+id/sample_output"
@@ -30,6 +30,16 @@
               style="@style/Widget.SampleMessageTile"
               android:layout_width="match_parent"
               android:layout_height="match_parent">
+
+<!--
+            <com.thebluealliance.spectrum.SpectrumPalette
+                android:id="@+id/palette"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                app:spectrum_autoPadding="true"
+                app:spectrum_outlineWidth="2dp" />
+-->
+
 
             <TextView
                   style="@style/Widget.SampleMessage"
