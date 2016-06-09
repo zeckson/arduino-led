@@ -8,9 +8,9 @@ const long BAUD6 = 38400;
 const long BAUD7 = 57600;
 const long BAUD8 = 115200;
 
-const int SPEEDS_LEN = 4;
+const int SPEEDS_LEN = 5;
 // If you haven't configured your device before use BAUD4
-const long SPEEDS[SPEEDS_LEN] = {BAUD4, BAUD6, BAUD7, BAUD8};
+const long SPEEDS[SPEEDS_LEN] = {BAUD4, 19200, BAUD6, BAUD7, BAUD8};
 
 
 // Swap RX/TX connections on bluetooth chip
@@ -71,13 +71,10 @@ void setup() {
   while (!Serial) { ; // wait for serial port to connect. Needed for Leonardo only
   }
   //Speed detection!
-  for (int i = 0; i < 1; ++i) {
+  for (int i = 0; i < SPEEDS_LEN; ++i) {
     long speed = SPEEDS[i];
     Serial.println(CONNECTING_ON + speed);
     btSerial.begin(speed);
-    btSerial.print("$");
-    btSerial.print("$");
-    btSerial.print("$");
     delay(2000);
     // Should respond with OK
     btSerial.print("AT");
