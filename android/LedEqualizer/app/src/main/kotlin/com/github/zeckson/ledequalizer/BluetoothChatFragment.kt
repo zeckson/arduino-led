@@ -1,30 +1,15 @@
 package com.github.zeckson.ledequalizer
 
-import android.app.ActionBar
 import android.app.Activity
 import android.bluetooth.BluetoothAdapter
-import android.bluetooth.BluetoothDevice
 import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
 import android.os.Message
 import android.support.v4.app.Fragment
-import android.support.v4.app.FragmentActivity
-import android.view.KeyEvent
-import android.view.LayoutInflater
-import android.view.Menu
-import android.view.MenuInflater
-import android.view.MenuItem
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
 import android.view.inputmethod.EditorInfo
-import android.widget.ArrayAdapter
-import android.widget.Button
-import android.widget.EditText
-import android.widget.ListView
-import android.widget.TextView
-import android.widget.Toast
-
+import android.widget.*
 import com.github.zeckson.ledequalizer.common.logger.Log
 
 /**
@@ -266,7 +251,8 @@ class BluetoothChatFragment : Fragment() {
         }
     }
 
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent) {
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        if (data == null) return
         when (requestCode) {
             REQUEST_CONNECT_DEVICE_SECURE ->
                 // When DeviceListActivity returns with a device to connect

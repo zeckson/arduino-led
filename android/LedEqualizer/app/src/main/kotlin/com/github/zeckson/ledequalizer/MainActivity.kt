@@ -1,11 +1,9 @@
 package com.github.zeckson.ledequalizer
 
 import android.os.Bundle
-import android.support.v4.app.FragmentTransaction
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.ViewAnimator
-
 import com.github.zeckson.ledequalizer.common.activities.SampleActivityBase
 import com.github.zeckson.ledequalizer.common.logger.Log
 import com.github.zeckson.ledequalizer.common.logger.LogFragment
