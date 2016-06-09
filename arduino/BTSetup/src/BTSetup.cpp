@@ -4,18 +4,19 @@
 const String DEV_NAME = "ArduinoBT";
 
 const long BAUD4 = 9600;
+const long BAUD6 = 38400;
 const long BAUD7 = 57600;
 const long BAUD8 = 115200;
 
-const int SPEEDS_LEN = 3;
+const int SPEEDS_LEN = 4;
 // If you haven't configured your device before use BAUD4
-const long SPEEDS[SPEEDS_LEN] = {BAUD4, BAUD7, BAUD8};
+const long SPEEDS[SPEEDS_LEN] = {BAUD4, BAUD6, BAUD7, BAUD8};
 
 
 // Swap RX/TX connections on bluetooth chip
 //   Pin 10 --> Bluetooth TX
 //   Pin 11 --> Bluetooth RX
-SoftwareSerial mySerial(10, 11); // RX, TX
+SoftwareSerial btSerial(10, 11); // RX, TX
 
 const String EMPTY_STR = "";
 
@@ -62,40 +63,47 @@ String waitForResponse() {
   return response;
 }
 
+const String CONNECTING_ON = "Connecting on ";
 
 void setup() {
   Serial.begin(9600);
 
+  while (!Serial) { ; // wait for serial port to connect. Needed for Leonardo only
+  }
   //Speed detection!
-  for (int i = 0; i < SPEEDS_LEN; ++i) {
+  for (int i = 0; i < 1; ++i) {
     long speed = SPEEDS[i];
-    Serial.println("Connecting at " + speed);
-    mySerial.begin(speed);
+    Serial.println(CONNECTING_ON + speed);
+    btSerial.begin(speed);
+    btSerial.print("$");
+    btSerial.print("$");
+    btSerial.print("$");
+    delay(2000);
     // Should respond with OK
-    mySerial.print("AT");
-    const String &atResponse = waitForResponse();
+    btSerial.print("AT");
+    const String atResponse = waitForResponse();
     if (atResponse == "OK") {
       break;
     } else {
-      mySerial.end();
+      btSerial.end();
     }
   }
 
   // Should respond with its version
-  mySerial.print("AT+VERSION");
+  btSerial.print("AT+VERSION");
   waitForResponse();
 
   // Set pin to 0000
-  mySerial.print("AT+PIN0000");
+  btSerial.print("AT+PIN0000");
   waitForResponse();
 
   // Set the name to ROBOT_NAME
-  mySerial.print("AT+NAME");
-  mySerial.print(DEV_NAME);
+  btSerial.print("AT+NAME");
+  btSerial.print(DEV_NAME);
   waitForResponse();
 
   // Set baudrate to 57600
-  mySerial.print("AT+BAUD7");
+  btSerial.print("AT+BAUD7");
   waitForResponse();
 
   Serial.println("Done!");
@@ -111,7 +119,7 @@ void loop() {
     case READ:
       command = readString();
       if (command != EMPTY_STR) {
-        mySerial.print(command);
+        btSerial.print(command);
         waitForResponse();
         state = INIT;
       }
