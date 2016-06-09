@@ -44,11 +44,15 @@ class BluetoothChatService
      * @param state An integer defining the current connection state
      */
     // Give the new state to the Handler so the UI Activity can update
-    var state: Int = 0
+    var backedState = 0
+    var state: Int
         @Synchronized private set(state) {
             Log.d(TAG, "setState() " + this.state + " -> " + state)
-            this.state = state
+            this.backedState = state
             mHandler.obtainMessage(Constants.MESSAGE_STATE_CHANGE, state, -1).sendToTarget()
+        }
+        get() {
+            return backedState;
         }
 
     init {

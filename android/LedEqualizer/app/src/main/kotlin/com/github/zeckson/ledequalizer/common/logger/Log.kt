@@ -44,7 +44,7 @@ object Log {
      */
     @JvmOverloads fun println(priority: Int, tag: String, msg: String, tr: Throwable? = null) {
         if (logNode != null) {
-            logNode!!.println(priority, tag, msg, tr!!)
+            logNode!!.println(priority, tag, msg, tr)
         }
     }
 
