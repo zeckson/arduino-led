@@ -1,5 +1,6 @@
 #include <SoftwareSerial.h>
 #include <Arduino.h>
+#include "RGBWstrandtest.h"
 
 static const int DEFAULT_DELAY = 2000;
 static const char *const DEV_NAME = "ArduinoBT";
@@ -112,6 +113,8 @@ void setup() {
   waitForResponse();
 
   Serial.println("Done!");
+
+  configureStrip();
 }
 
 
@@ -133,6 +136,9 @@ void loop() {
       message = readStream(btSerial);
       if (message != EMPTY_MSG) {
         Serial.print("Message from BT:" + message);
+      }
+      if(message == "rainbow#") {
+        rainbowCycle(10);
       }
       break;
     default:

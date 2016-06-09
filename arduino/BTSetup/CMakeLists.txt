@@ -48,4 +48,5 @@ add_custom_target(
 
 add_executable(BTSetup
     src/BTSetup.cpp
-)
+    src/RGBWstrandtest.cpp
+        src/RGBWstrandtest.h)

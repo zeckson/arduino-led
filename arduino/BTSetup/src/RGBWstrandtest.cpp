@@ -30,37 +30,19 @@ int gamma[] = {
   215,218,220,223,225,228,231,233,236,239,241,244,247,249,252,255 };
 
 
-void setup() {
-  Serial.begin(115200);
-  // This is for Trinket 5V 16MHz, you can remove these three lines if you are not using a Trinket
-  #if defined (__AVR_ATtiny85__)
-    if (F_CPU == 16000000) clock_prescale_set(clock_div_1);
-  #endif
+uint8_t red(uint32_t c);
+uint8_t green(uint32_t c);
+uint8_t blue(uint32_t c);
+
+void configureStrip() {
   // End of trinket special code
   strip.setBrightness(BRIGHTNESS);
   strip.begin();
   strip.show(); // Initialize all pixels to 'off'
 }
-
-void loop() {
-  // Some example procedures showing how to display to the pixels:
-//  colorWipe(strip.Color(255, 0, 0), 50); // Red
-//  colorWipe(strip.Color(0, 255, 0), 50); // Green
-//  colorWipe(strip.Color(0, 0, 255), 50); // Blue
-//  colorWipe(strip.Color(0, 0, 0, 255), 50); // White
-
-//  whiteOverRainbow(20,75,5);  
-
-//  pulseWhite(5); 
-
-  // fullWhite();
-  // delay(2000);
-
-//  rainbowFade2White(3,3,1);
-  rainbow(10);
-
-}
-
+// Input a value 0 to 255 to get a color value.
+// The colours are a transition r - g - b - back to r.
+uint32_t Wheel(byte WheelPos) ;
 // Fill the dots one after the other with a color
 void colorWipe(uint32_t c, uint8_t wait) {
   for(uint16_t i=0; i<strip.numPixels(); i++) {
@@ -96,7 +78,7 @@ void rainbowFade2White(uint8_t wait, int rainbowLoops, int whiteLoops) {
   int redVal, greenVal, blueVal;
 
   for(int k = 0 ; k < rainbowLoops ; k ++){
-    
+
     for(int j=0; j<256; j++) { // 5 cycles of all colors on wheel
 
       for(int i=0; i< strip.numPixels(); i++) {
@@ -124,7 +106,7 @@ void rainbowFade2White(uint8_t wait, int rainbowLoops, int whiteLoops) {
         strip.show();
         delay(wait);
     }
-  
+
   }
 
 
@@ -158,7 +140,7 @@ void rainbowFade2White(uint8_t wait, int rainbowLoops, int whiteLoops) {
 }
 
 void whiteOverRainbow(uint8_t wait, uint8_t whiteSpeed, uint8_t whiteLength ) {
-  
+
   if(whiteLength >= strip.numPixels()) whiteLength = strip.numPixels() - 1;
 
   int head = whiteLength - 1;
@@ -179,7 +161,7 @@ void whiteOverRainbow(uint8_t wait, uint8_t whiteSpeed, uint8_t whiteLength ) {
         else{
           strip.setPixelColor(i, Wheel(((i * 256 / strip.numPixels()) + j) & 255));
         }
-        
+
       }
 
       if(millis() - lastTime > whiteSpeed) {
@@ -192,17 +174,17 @@ void whiteOverRainbow(uint8_t wait, uint8_t whiteSpeed, uint8_t whiteLength ) {
       }
 
       if(loopNum == loops) return;
-    
+
       head%=strip.numPixels();
       tail%=strip.numPixels();
         strip.show();
         delay(wait);
     }
   }
-  
+
 }
 void fullWhite() {
-  
+
     for(uint16_t i=0; i<strip.numPixels(); i++) {
         strip.setPixelColor(i, strip.Color(0,0,0, 255 ) );
     }
@@ -210,7 +192,6 @@ void fullWhite() {
 }
 
 
-// Slightly different, this makes the rainbow equally distributed throughout
 void rainbowCycle(uint8_t wait) {
   uint16_t i, j;
 
@@ -253,9 +234,11 @@ uint32_t Wheel(byte WheelPos) {
 uint8_t red(uint32_t c) {
   return (c >> 8);
 }
+
 uint8_t green(uint32_t c) {
   return (c >> 16);
 }
+
 uint8_t blue(uint32_t c) {
   return (c);
 }
