@@ -1,4 +1,4 @@
-package com.github.zeckson.ledequalizer
+package com.github.zeckson.activity
 
 import android.app.Activity
 import android.bluetooth.BluetoothAdapter
@@ -11,6 +11,7 @@ import android.os.Bundle
 import android.view.View
 import android.view.Window
 import android.widget.*
+import com.github.zeckson.ledequalizer.R
 import com.github.zeckson.ledequalizer.common.logger.Log
 
 /**

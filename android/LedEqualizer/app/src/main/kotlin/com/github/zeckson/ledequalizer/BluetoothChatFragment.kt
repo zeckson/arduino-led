@@ -10,6 +10,8 @@ import android.support.v4.app.Fragment
 import android.view.*
 import android.view.inputmethod.EditorInfo
 import android.widget.*
+import com.github.zeckson.activity.DeviceListActivity
+import com.github.zeckson.bluetooth.BluetoothArduino
 import com.github.zeckson.ledequalizer.common.logger.Log
 
 /**
@@ -291,8 +293,15 @@ class BluetoothChatFragment : Fragment() {
         val address = data.extras.getString(DeviceListActivity.EXTRA_DEVICE_ADDRESS)
         // Get the BluetoothDevice object
         val device = mBluetoothAdapter!!.getRemoteDevice(address)
+
+        Log.i(TAG, "Connecting to device by $address")
+
+        val arduino = BluetoothArduino.getInstance()
+        if (arduino.connect(address)) {
+            arduino.sendMessage("Hi, Arduino!#");
+        }
         // Attempt to connect to the device
-        mChatService!!.connect(device, secure)
+//        mChatService!!.connect(device, secure)
     }
 
     override fun onCreateOptionsMenu(menu: Menu?, inflater: MenuInflater?) {
