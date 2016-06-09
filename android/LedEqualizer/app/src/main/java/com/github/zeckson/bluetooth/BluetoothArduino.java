@@ -20,7 +20,7 @@ public class BluetoothArduino extends Thread {
     private BluetoothSocket mBlueSocket = null;
     private BluetoothDevice mBlueRobo = null;
     private boolean robotFound = false;
-    private boolean connected = false;
+    private volatile boolean connected = false;
     private int REQUEST_BLUE_ATIVAR = 10;
     private String robotName;
     private List<String> mMessages = new ArrayList<String>();
@@ -94,7 +94,9 @@ public class BluetoothArduino extends Thread {
             mOut = mBlueSocket.getOutputStream();
             mIn = mBlueSocket.getInputStream();
             connected = true;
-            this.start();
+            if (!(this.isAlive())) {
+                this.start();
+            }
             LogMessage("\t\t\t" + mBlueAdapter.getName());
             LogMessage("\t\tOk!!");
             return true;
@@ -107,6 +109,19 @@ public class BluetoothArduino extends Thread {
 
     public boolean connect() {
         return robotFound && connect(mBlueRobo);
+    }
+
+    public boolean disconnect() {
+        if (!connected) return false;
+        try {
+            mBlueSocket.close();
+            connected = false;
+            return true;
+        } catch (IOException e) {
+            LogError("Failed to disconnect " + e.getMessage());
+            e.printStackTrace();
+            return false;
+        }
     }
 
     public void run() {

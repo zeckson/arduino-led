@@ -299,6 +299,7 @@ class BluetoothChatFragment : Fragment() {
         val arduino = BluetoothArduino.getInstance()
         if (arduino.connect(address)) {
             arduino.sendMessage("Hi, Arduino!#");
+            arduino.disconnect();
         }
         // Attempt to connect to the device
 //        mChatService!!.connect(device, secure)

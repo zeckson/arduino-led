@@ -28,7 +28,7 @@
         </activity>
 
         <activity
-            android:name=".DeviceListActivity"
+            android:name="com.github.zeckson.activity.DeviceListActivity"
             android:configChanges="orientation|keyboardHidden"
             android:label="@string/select_device"
             android:theme="@android:style/Theme.Holo.Dialog"/>
