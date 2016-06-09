@@ -7,7 +7,9 @@ static const char *const EMPTY_MSG = "";
 
 const int INIT = 0;
 const int READ = 1;
+const int LED = 2;
 int state = INIT;
+int counter = 0;
 String message;
 
 Bluetooth *blue = new Bluetooth(DEV_NAME);
@@ -32,8 +34,6 @@ void setup() {
 
   while (!Serial) { ; // wait for serial port to connect. Needed for Leonardo only
   }
-  Serial.println("Hello!");
-
   blue->init();
 
   configureStrip();
@@ -61,7 +61,16 @@ void loop() {
         Serial.print("Message from BT:" + message);
       }
       if (message == "rainbow#") {
+        Serial.println("Begin rainbow!");
+        state = LED;
         rainbowCycle(10);
+      }
+      break;
+    case LED:
+      Serial.println("Rainbow - " + counter++);
+      rainbowCycle(10);
+      if (counter > 20) {
+        state = INIT;
       }
       break;
     default:

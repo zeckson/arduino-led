@@ -156,6 +156,11 @@ String readFullyInternal(Stream *serial) {
 String waitForResponse(SoftwareSerial *btSerial) {
   delay(DEFAULT_DELAY);
   String response = readFullyInternal(btSerial);
+  if (response == EMPTY_MSG) {
+    Serial.println(RESPONSE + NO_RESPONSE);
+  } else {
+    Serial.println(RESPONSE + response);
+  }
   return response;
 }
 
@@ -166,11 +171,6 @@ boolean connect(long speed, SoftwareSerial *btSerial) {
   // Should respond with OK
   btSerial->print("AT");
   const String atResponse = waitForResponse(btSerial);
-  if (atResponse == EMPTY_MSG) {
-    Serial.println(RESPONSE + NO_RESPONSE);
-  } else {
-    Serial.println(RESPONSE + atResponse);
-  }
   return atResponse == OK_MSG;
 }
 
