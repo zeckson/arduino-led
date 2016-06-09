@@ -1,6 +1,11 @@
 #include <Arduino.h>
 #include <SoftwareSerial.h>
 #include "bluetooth.h"
+// Swap RX/TX connections on bluetooth chip
+//   Pin 10 --> Bluetooth TX
+//   Pin 11 --> Bluetooth RX
+static const uint8_t DEFAULT_RX = 10;
+static const uint8_t DEFAULT_TX = 11;
 
 static const long BAUD4 = 9600;
 static const long BAUD6 = 38400;
@@ -42,7 +47,7 @@ int Bluetooth::getrxPin() {
   return rxPin;
 }
 
-void Bluetooth::setrxPin(int rx) {
+void Bluetooth::setrxPin(uint8_t rx) {
   rxPin = rx;
 }
 
@@ -50,14 +55,12 @@ int Bluetooth::gettxPin() {
   return txPin;
 }
 
-void Bluetooth::settxPin(int tx) {
+void Bluetooth::settxPin(uint8_t tx) {
   txPin = tx;
 }
 
 void Bluetooth::init() {
-  Serial.println(rxPin);
-  Serial.println(txPin);
-  btSerial = new SoftwareSerial(rxPin, txPin);
+  btSerial = new SoftwareSerial(DEFAULT_RX, DEFAULT_TX);
 
   autodetect(btSerial);
 
@@ -83,11 +86,11 @@ void Bluetooth::init() {
 
 Bluetooth::Bluetooth(const char name[]) {
   setName(name);
-  setrxPin(rxPin);
-  settxPin(txPin);
+  setrxPin(DEFAULT_RX);
+  settxPin(DEFAULT_TX);
 }
 
-Bluetooth::Bluetooth(const char name[], int r, int t) {
+Bluetooth::Bluetooth(const char name[], uint8_t r, uint8_t t) {
   setName(name);
   setrxPin(r);
   settxPin(t);

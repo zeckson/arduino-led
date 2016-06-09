@@ -3,30 +3,25 @@
 static const char *DEV_NAME = "ArduinoBT";
 static const char *const DEV_PIN = "0000";
 
-// Swap RX/TX connections on bluetooth chip
-//   Pin 10 --> Bluetooth TX
-//   Pin 11 --> Bluetooth RX
-static const int DEFAULT_RX = 10;
-static const int DEFAULT_TX = 11;
 #include "Arduino.h"
 #include <SoftwareSerial.h>
 
 class Bluetooth{
 private:
-    uint8_t rxPin = DEFAULT_RX;
-    uint8_t txPin = DEFAULT_TX;
+    uint8_t rxPin = 10;
+    uint8_t txPin = 11;
     SoftwareSerial *btSerial;
     char msg[1024];
     char Name[256];
 
 public:
     int getrxPin();
-    void setrxPin(int rx);
+    void setrxPin(uint8_t rx);
     int gettxPin();
-    void settxPin(int tx);
+    void settxPin(uint8_t tx);
     void init();
     Bluetooth(const char name[]);
-    Bluetooth(const char name[], int r, int t);
+    Bluetooth(const char name[], uint8_t r, uint8_t t);
     String read();
     String readFully();
     void print(const char *c);
