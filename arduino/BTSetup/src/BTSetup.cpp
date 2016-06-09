@@ -1,6 +1,7 @@
 #include <SoftwareSerial.h>
 #include <Arduino.h>
 
+static const int DEFAULT_DELAY = 2000;
 const String DEV_NAME = "ArduinoBT";
 
 const long BAUD4 = 9600;
@@ -18,13 +19,14 @@ const long SPEEDS[SPEEDS_LEN] = {BAUD4, 19200, BAUD6, BAUD7, BAUD8};
 //   Pin 11 --> Bluetooth RX
 SoftwareSerial btSerial(10, 11); // RX, TX
 
-const String EMPTY_STR = "";
+static const String EMPTY_MSG = "";
+static const char *const OK_MSG = "OK";
+const String CONNECTING_ON = "Connecting on ";
 
 const int INIT = 0;
 const int READ = 1;
-const int ERR = 2;
 int state = INIT;
-String command;
+String message;
 
 /*
   The posible baudrates are:
@@ -41,50 +43,56 @@ String command;
     AT+BAUDB-----921600
     AT+BAUDC----1382400
 */
-String readString() {
+String readStream(Stream &serial) {
   String content = "";
   char character;
 
-  while (Serial.available()) {
-    character = Serial.read();
+  while (serial.available()) {
+    character = serial.read();
     content.concat(character);
   }
 
-  if (content != EMPTY_STR) {
-    Serial.println(content);
+  if (content != EMPTY_MSG) {
+    serial.println(content);
   }
   return content;
 }
 
 String waitForResponse() {
-  delay(2500);
-  String response = readString();
+  delay(DEFAULT_DELAY);
+  String response = readStream(btSerial);
   Serial.println(response);
   return response;
 }
 
-const String CONNECTING_ON = "Connecting on ";
+boolean connect(long speed) {
+  Serial.println(CONNECTING_ON + speed);
+  btSerial.begin(speed);
+  delay(100);
+  // Should respond with OK
+  btSerial.print("AT");
+  const String atResponse = waitForResponse();
+  return atResponse == OK_MSG;
+}
+
+void connect() {
+  //Speed detection!
+  for (int i = 0; i < SPEEDS_LEN; ++i) {
+    long speed = SPEEDS[i];
+    if (connect(speed)) {
+      break;
+    } else {
+      btSerial.end();
+    }
+  }
+}
 
 void setup() {
   Serial.begin(9600);
 
   while (!Serial) { ; // wait for serial port to connect. Needed for Leonardo only
   }
-  //Speed detection!
-  for (int i = 0; i < SPEEDS_LEN; ++i) {
-    long speed = SPEEDS[i];
-    Serial.println(CONNECTING_ON + speed);
-    btSerial.begin(speed);
-    delay(2000);
-    // Should respond with OK
-    btSerial.print("AT");
-    const String atResponse = waitForResponse();
-    if (atResponse == "OK") {
-      break;
-    } else {
-      btSerial.end();
-    }
-  }
+  connect(BAUD7);
 
   // Should respond with its version
   btSerial.print("AT+VERSION");
@@ -114,17 +122,22 @@ void loop() {
       state = READ;
       break;
     case READ:
-      command = readString();
-      if (command != EMPTY_STR) {
-        btSerial.print(command);
+      message = readStream(Serial);
+      if (message != EMPTY_MSG) {
+        Serial.println("Send command to BT: " + message);
+        btSerial.print(message);
         waitForResponse();
         state = INIT;
+        break;
+      }
+      message = readStream(btSerial);
+      if (message != EMPTY_MSG) {
+        Serial.print("Message from BT:" + message);
       }
       break;
     default:
       Serial.println("Unknown state:" + state);
-      break;
   }
 
-  delay(100);
+  delay(500);
 }
