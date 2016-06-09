@@ -1,3 +1,8 @@
+#include <SoftwareSerial.h>
+#include <HardwareSerial.h>
+#include <WString.h>
+#include <HID.h>
+
 const String DEV_NAME = "ArduinoBT";
 
 const long BAUD4 = 9600;
@@ -7,9 +12,6 @@ const long BAUD8 = 115200;
 // If you haven't configured your device before use BAUD4
 const long SPEED = BAUD8;
 
-#include <SoftwareSerial.h>
-#include <HardwareSerial.h>
-#include <USBAPI.h>
 
 // Swap RX/TX connections on bluetooth chip
 //   Pin 10 --> Bluetooth TX

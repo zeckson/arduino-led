@@ -1,12 +1,51 @@
-cmake_minimum_required(VERSION 2.8.4)
+cmake_minimum_required(VERSION 3.2)
+project(BTSetup)
 
-#Define your port to arduino here
-set(${FIRMWARE_NAME}_PORT /dev/cu.wchusbserial1420)
+include(CMakeListsPrivate.txt)
 
-set(CMAKE_TOOLCHAIN_FILE ${CMAKE_SOURCE_DIR}/cmake/ArduinoToolchain.cmake)
-set(PROJECT_NAME BTSetup)
-project(${PROJECT_NAME})
+add_definitions(-DF_CPU=16000000L)
+add_definitions(-DARDUINO_ARCH_AVR)
+add_definitions(-DARDUINO_AVR_NANO)
+add_definitions(-DARDUINO=10608)
+add_definitions(-DPLATFORMIO=020806)
+add_definitions(-D__AVR_ATmega328P__)
 
-set(${CMAKE_PROJECT_NAME}_SKETCH BTSetup.ino)
+add_custom_target(
+    PLATFORMIO_BUILD ALL
+    COMMAND ${PLATFORMIO_CMD} -f -c clion run
+    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+)
 
-generate_arduino_firmware(${CMAKE_PROJECT_NAME})
+add_custom_target(
+    PLATFORMIO_UPLOAD ALL
+    COMMAND ${PLATFORMIO_CMD} -f -c clion run --target upload
+    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+)
+
+add_custom_target(
+    PLATFORMIO_CLEAN ALL
+    COMMAND ${PLATFORMIO_CMD} -f -c clion run --target clean
+    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+)
+
+add_custom_target(
+    PLATFORMIO_PROGRAM ALL
+    COMMAND ${PLATFORMIO_CMD} -f -c clion run --target program
+    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+)
+
+add_custom_target(
+    PLATFORMIO_UPLOADFS ALL
+    COMMAND ${PLATFORMIO_CMD} -f -c clion run --target uploadfs
+    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+)
+
+add_custom_target(
+    PLATFORMIO_UPDATE_ALL ALL
+    COMMAND ${PLATFORMIO_CMD} -f -c clion update
+    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+)
+
+add_executable(BTSetup
+    src/BTSetup.cpp
+)
