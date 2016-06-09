@@ -1,7 +1,5 @@
 #include <SoftwareSerial.h>
-#include <HardwareSerial.h>
-#include <WString.h>
-#include <HID.h>
+#include <Arduino.h>
 
 const String DEV_NAME = "ArduinoBT";
 
@@ -9,8 +7,9 @@ const long BAUD4 = 9600;
 const long BAUD7 = 57600;
 const long BAUD8 = 115200;
 
+const int SPEEDS_LEN = 3;
 // If you haven't configured your device before use BAUD4
-const long SPEED = BAUD8;
+const long SPEEDS[SPEEDS_LEN] = {BAUD4, BAUD7, BAUD8};
 
 
 // Swap RX/TX connections on bluetooth chip
@@ -41,20 +40,11 @@ String command;
     AT+BAUDB-----921600
     AT+BAUDC----1382400
 */
-
-void waitForResponse() {
-  delay(2500);
-  while (mySerial.available()) {
-    Serial.write(mySerial.read());
-  }
-  Serial.write("\n");
-}
-
 String readString() {
   String content = "";
   char character;
 
-  while(Serial.available()) {
+  while (Serial.available()) {
     character = Serial.read();
     content.concat(character);
   }
@@ -65,18 +55,31 @@ String readString() {
   return content;
 }
 
-void setup()
-{
-  Serial.begin(9600);
-  while (!Serial) {
-    ; // wait for serial port to connect. Needed for Leonardo only
-  }
-  Serial.println("Starting config");
-  mySerial.begin(SPEED);
+String waitForResponse() {
+  delay(2500);
+  String response = readString();
+  Serial.println(response);
+  return response;
+}
 
-  // Should respond with OK
-  mySerial.print("AT");
-  waitForResponse();
+
+void setup() {
+  Serial.begin(9600);
+
+  //Speed detection!
+  for (int i = 0; i < SPEEDS_LEN; ++i) {
+    long speed = SPEEDS[i];
+    Serial.println("Connecting at " + speed);
+    mySerial.begin(speed);
+    // Should respond with OK
+    mySerial.print("AT");
+    const String &atResponse = waitForResponse();
+    if (atResponse == "OK") {
+      break;
+    } else {
+      mySerial.end();
+    }
+  }
 
   // Should respond with its version
   mySerial.print("AT+VERSION");
@@ -92,7 +95,7 @@ void setup()
   waitForResponse();
 
   // Set baudrate to 57600
-  mySerial.print("AT+BAUD8");
+  mySerial.print("AT+BAUD7");
   waitForResponse();
 
   Serial.println("Done!");
@@ -107,16 +110,16 @@ void loop() {
       break;
     case READ:
       command = readString();
-      if(command != EMPTY_STR) { 
+      if (command != EMPTY_STR) {
         mySerial.print(command);
         waitForResponse();
         state = INIT;
       }
       break;
-    default: 
+    default:
       Serial.println("Unknown state:" + state);
-    break;
+      break;
   }
-  
+
   delay(100);
-  }
+}
