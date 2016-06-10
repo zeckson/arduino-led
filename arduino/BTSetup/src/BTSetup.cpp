@@ -62,18 +62,17 @@ void loop() {
       }
       message = blue->read();
       if (message != EMPTY_MSG) {
-        Serial.print("Message from BT:" + message);
+        Serial.println("Message from BT:" + message);
       }
       if (message == "rainbow#") {
         Serial.println("Begin rainbow!");
         state = LED;
-        rainbowCycle(10);
       }
       break;
     case LED:
       Serial.println(str("Rainbow - ") + (counter++));
       rainbowCycle(10);
-      if (counter > 20) {
+      if (counter > 5) {
         counter = 0;
         state = INIT;
       }

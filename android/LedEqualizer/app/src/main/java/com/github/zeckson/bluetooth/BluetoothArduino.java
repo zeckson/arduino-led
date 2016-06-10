@@ -4,6 +4,8 @@ import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
 
+import com.github.zeckson.ledequalizer.common.logger.Log;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -90,7 +92,20 @@ public class BluetoothArduino extends Thread {
 
             UUID uuid = UUID.fromString("00001101-0000-1000-8000-00805f9b34fb");
             mBlueSocket = device.createRfcommSocketToServiceRecord(uuid);
-            mBlueSocket.connect();
+
+            try {
+                mBlueSocket.connect();
+            } catch (IOException e) {
+                //Fallback of BT issue
+                //See http://stackoverflow.com/questions/18657427/ioexception-read-failed-socket-might-closed-bluetooth-on-android-4-3
+                Log.INSTANCE.e(TAG, e.getMessage());
+                Log.INSTANCE.e(TAG, "trying fallback...");
+
+                mBlueSocket = (BluetoothSocket) device.getClass().getMethod("createRfcommSocket", new Class[]{int.class}).invoke(device, 1);
+                mBlueSocket.connect();
+
+                Log.INSTANCE.i(TAG, "Connected");
+            }
             mOut = mBlueSocket.getOutputStream();
             mIn = mBlueSocket.getInputStream();
             connected = true;
