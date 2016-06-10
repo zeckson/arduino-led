@@ -47,8 +47,7 @@ add_custom_target(
 )
 
 add_executable(bluetooth
+        src/bluetooth.cpp
         src/EventDispatcher.cpp
         src/StripController.cpp
-        src/StripController.h
-        src/bluetooth.cpp
-        src/bluetooth.h)
+        )
