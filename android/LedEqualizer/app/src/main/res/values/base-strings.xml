@@ -19,10 +19,7 @@
     <string name="app_name">LED Equalizer</string>
     <string name="intro_message">
         <![CDATA[
-        
-            
             This application allows to set speed and color of LEDs.
-        
         ]]>
     </string>
 </resources>

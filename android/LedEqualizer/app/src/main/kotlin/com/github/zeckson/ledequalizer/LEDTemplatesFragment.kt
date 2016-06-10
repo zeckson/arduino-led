@@ -13,8 +13,9 @@ import android.widget.*
 import com.github.zeckson.activity.DeviceListActivity
 import com.github.zeckson.ledequalizer.common.logger.Log
 
-private val TEMPLATES = arrayOf("rainbow", "rainbowCycle", "theaterChaseRainbow",
-        "theaterWhite", "theaterRed", "theaterBlue", "theaterGreen")
+private val TEMPLATES = arrayOf("black", "red", "green", "blue", "theaterWhite", "theaterRed", "theaterBlue",
+        "rainbow", "rainbowCycle", "theaterChaseRainbow", "pulseWhite", "rainbowFade2White",
+        "whiteOverRainbow", "fullWhite")
 
 /**
  * This fragment controls Bluetooth to communicate with other devices.
