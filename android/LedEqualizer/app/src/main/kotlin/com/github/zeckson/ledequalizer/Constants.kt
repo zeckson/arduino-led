@@ -17,19 +17,19 @@
 package com.github.zeckson.ledequalizer
 
 /**
- * Defines several constants used between [BluetoothChatService] and the UI.
+ * Defines several constants used between [BluetoothService] and the UI.
  */
 interface Constants {
     companion object {
 
-        // Message types sent from the BluetoothChatService Handler
+        // Message types sent from the BluetoothService Handler
         val MESSAGE_STATE_CHANGE = 1
         val MESSAGE_READ = 2
         val MESSAGE_WRITE = 3
         val MESSAGE_DEVICE_NAME = 4
         val MESSAGE_TOAST = 5
 
-        // Key names received from the BluetoothChatService Handler
+        // Key names received from the BluetoothService Handler
         val DEVICE_NAME = "device_name"
         val TOAST = "toast"
     }

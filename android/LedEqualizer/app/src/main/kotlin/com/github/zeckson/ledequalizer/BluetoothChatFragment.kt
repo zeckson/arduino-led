@@ -11,7 +11,6 @@ import android.view.*
 import android.view.inputmethod.EditorInfo
 import android.widget.*
 import com.github.zeckson.activity.DeviceListActivity
-import com.github.zeckson.bluetooth.BluetoothArduino
 import com.github.zeckson.ledequalizer.common.logger.Log
 
 /**
@@ -47,7 +46,7 @@ class BluetoothChatFragment : Fragment() {
     /**
      * Member object for the chat services
      */
-    private var mChatService: BluetoothChatService? = null
+    private var mService: BluetoothService? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -69,38 +68,27 @@ class BluetoothChatFragment : Fragment() {
         //In case we are running on emulator
         if (mBluetoothAdapter == null) {
             Toast.makeText(activity, "Bluetooth adapter is not found or forbidden", Toast.LENGTH_SHORT).show()
-            setupChat()
+            setupBluetoothService()
         } else if (!mBluetoothAdapter!!.isEnabled) {
             // If BT is not on, request that it be enabled.
             // setupChat() will then be called during onActivityResult
             val enableIntent = Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE)
             startActivityForResult(enableIntent, REQUEST_ENABLE_BT)
-        } else if (mChatService == null) {
+        } else if (mService == null) {
             // Otherwise, setup the chat session
-            setupChat()
+            setupBluetoothService()
         }
     }
 
     override fun onDestroy() {
         super.onDestroy()
-        if (mChatService != null) {
-            mChatService!!.stop()
+        if (mService != null) {
+            mService!!.stop()
         }
     }
 
     override fun onResume() {
         super.onResume()
-
-        // Performing this check in onResume() covers the case in which BT was
-        // not enabled during onStart(), so we were paused to enable it...
-        // onResume() will be called when ACTION_REQUEST_ENABLE activity returns.
-        if (mChatService != null) {
-            // Only if the state is STATE_NONE, do we know that we haven't started already
-            if (mChatService!!.state == BluetoothChatService.STATE_NONE) {
-                // Start the Bluetooth chat services
-                mChatService!!.start()
-            }
-        }
     }
 
     override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?,
@@ -117,7 +105,7 @@ class BluetoothChatFragment : Fragment() {
     /**
      * Set up the UI and background operations for chat.
      */
-    private fun setupChat() {
+    private fun setupBluetoothService() {
         Log.d(TAG, "setupChat()")
 
         // Initialize the array adapter for the conversation thread
@@ -139,8 +127,8 @@ class BluetoothChatFragment : Fragment() {
             }
         }
 
-        // Initialize the BluetoothChatService to perform bluetooth connections
-        mChatService = BluetoothChatService(activity, mHandler)
+        // Initialize the BluetoothService to perform bluetooth connections
+        mService = BluetoothService(activity, mHandler)
 
         // Initialize the buffer for outgoing messages
         mOutStringBuffer = StringBuffer("")
@@ -164,16 +152,11 @@ class BluetoothChatFragment : Fragment() {
      */
     private fun sendMessage(message: String) {
         // Check that we're actually connected before trying anything
-        if (mChatService!!.state != BluetoothChatService.STATE_CONNECTED) {
-            Toast.makeText(activity, R.string.not_connected, Toast.LENGTH_SHORT).show()
-            return
-        }
 
         // Check that there's actually something to send
         if (message.length > 0) {
-            // Get the message bytes and tell the BluetoothChatService to write
-            val send = message.toByteArray()
-            mChatService!!.write(send)
+            // Get the message bytes and tell the BluetoothService to write
+            mService!!.sendMessageToCurrentDevice(message)
 
             // Reset out string buffer to zero and clear the edit text field
             mOutStringBuffer!!.setLength(0)
@@ -216,19 +199,19 @@ class BluetoothChatFragment : Fragment() {
     }
 
     /**
-     * The Handler that gets information back from the BluetoothChatService
+     * The Handler that gets information back from the BluetoothService
      */
     private val mHandler = object : Handler() {
         override fun handleMessage(msg: Message) {
             val activity = activity
             when (msg.what) {
                 Constants.MESSAGE_STATE_CHANGE -> when (msg.arg1) {
-                    BluetoothChatService.STATE_CONNECTED -> {
+                    BluetoothService.STATE_CONNECTED -> {
                         setStatus(getString(R.string.title_connected_to, mConnectedDeviceName))
                         mConversationArrayAdapter!!.clear()
                     }
-                    BluetoothChatService.STATE_CONNECTING -> setStatus(R.string.title_connecting)
-                    BluetoothChatService.STATE_LISTEN, BluetoothChatService.STATE_NONE -> setStatus(R.string.title_not_connected)
+                    BluetoothService.STATE_CONNECTING -> setStatus(R.string.title_connecting)
+                    BluetoothService.STATE_LISTEN, BluetoothService.STATE_NONE -> setStatus(R.string.title_not_connected)
                 }
                 Constants.MESSAGE_WRITE -> {
                     val writeBuf = msg.obj as ByteArray
@@ -274,7 +257,7 @@ class BluetoothChatFragment : Fragment() {
                 // When the request to enable Bluetooth returns
                 if (resultCode == Activity.RESULT_OK) {
                     // Bluetooth is now enabled, so set up a chat session
-                    setupChat()
+                    setupBluetoothService()
                 } else {
                     // User did not enable Bluetooth or an error occurred
                     Log.d(TAG, "BT not enabled")
@@ -296,17 +279,9 @@ class BluetoothChatFragment : Fragment() {
         // Get the device MAC address
         val address = data.extras.getString(DeviceListActivity.EXTRA_DEVICE_ADDRESS)
         // Get the BluetoothDevice object
-        val device = mBluetoothAdapter!!.getRemoteDevice(address)
-
         Log.i(TAG, "Connecting to device by $address")
 
-        val arduino = BluetoothArduino.getInstance()
-        if (arduino.connect(address)) {
-            arduino.sendMessage("rainbow#");
-//            arduino.disconnect();
-        }
-        // Attempt to connect to the device
-//        mChatService!!.connect(device, secure)
+        mService!!.sendMessage(mBluetoothAdapter!!.getRemoteDevice(address), secure, "rainbow#");
     }
 
     override fun onCreateOptionsMenu(menu: Menu?, inflater: MenuInflater?) {
