@@ -29,6 +29,10 @@ String readStream(Stream &serial) {
   return content;
 }
 
+String str(const char* chars) {
+  return String(chars);
+}
+
 void setup() {
   Serial.begin(9600);
 
@@ -67,9 +71,10 @@ void loop() {
       }
       break;
     case LED:
-      Serial.println("Rainbow - " + counter++);
+      Serial.println(str("Rainbow - ") + (counter++));
       rainbowCycle(10);
       if (counter > 20) {
+        counter = 0;
         state = INIT;
       }
       break;
