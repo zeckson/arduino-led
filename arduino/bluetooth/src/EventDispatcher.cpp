@@ -11,6 +11,7 @@ const int LED = 2;
 int state = INIT;
 int counter = 0;
 String message;
+int current_show = 0;
 
 Bluetooth *blue = new Bluetooth(DEV_NAME);
 
@@ -29,7 +30,7 @@ String readStream(Stream &serial) {
   return content;
 }
 
-String str(const char* chars) {
+String str(const char *chars) {
   return String(chars);
 }
 
@@ -62,7 +63,12 @@ void loop() {
       }
       message = blue->read();
       if (message != EMPTY_MSG) {
+        message = message.substring(0, message.length() - 1);
         Serial.println("Message from BT:" + message);
+        current_show = findShow(message.c_str());
+        if(current_show >= 0) {
+          state = LED;
+        }
       }
       if (message == "rainbow#") {
         Serial.println("Begin rainbow!");
@@ -71,8 +77,8 @@ void loop() {
       break;
     case LED:
       Serial.println(str("Rainbow - ") + (counter++));
-      rainbowCycle(10);
-      if (counter > 5) {
+      startShow(current_show);
+      if (counter >= 1) {
         counter = 0;
         state = INIT;
       }
@@ -83,3 +89,4 @@ void loop() {
 
   delay(500);
 }
+
