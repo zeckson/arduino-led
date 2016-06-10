@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.2)
-project(BTSetup)
+project(bluetooth)
 
 include(CMakeListsPrivate.txt)
 
@@ -46,7 +46,7 @@ add_custom_target(
         WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
 )
 
-add_executable(BTSetup
+add_executable(bluetooth
         src/EventDispatcher.cpp
         src/StripController.cpp
         src/StripController.h
