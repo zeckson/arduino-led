@@ -13,14 +13,18 @@ import android.widget.*
 import com.github.zeckson.activity.DeviceListActivity
 import com.github.zeckson.ledequalizer.common.logger.Log
 
+private val TEMPLATES = arrayOf("rainbow", "rainbowCycle", "theaterChaseRainbow",
+        "theaterWhite", "theaterRed", "theaterBlue", "theaterGreen")
+
 /**
  * This fragment controls Bluetooth to communicate with other devices.
  */
-class BluetoothChatFragment : Fragment() {
+class LEDTemplatesFragment : Fragment() {
 
     // Layout Views
-    private var mConversationView: ListView? = null
+    private var mTemplatesListView: ListView? = null
     private var mOutEditText: EditText? = null
+    private var mCurrentDevice: TextView? = null
     private var mSendButton: Button? = null
 
     /**
@@ -28,10 +32,6 @@ class BluetoothChatFragment : Fragment() {
      */
     private var mConnectedDeviceName: String? = null
 
-    /**
-     * Array adapter for the conversation thread
-     */
-    private var mConversationArrayAdapter: ArrayAdapter<String>? = null
 
     /**
      * String buffer for outgoing messages
@@ -93,25 +93,33 @@ class BluetoothChatFragment : Fragment() {
 
     override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
-        return inflater!!.inflate(R.layout.fragment_bluetooth_chat, container, false)
+        return inflater!!.inflate(R.layout.fragment_led_templates, container, false)
     }
 
     override fun onViewCreated(view: View?, savedInstanceState: Bundle?) {
-        mConversationView = view!!.findViewById(R.id.`in`) as ListView
+        mTemplatesListView = view!!.findViewById(R.id.`templates`) as ListView
         mOutEditText = view.findViewById(R.id.edit_text_out) as EditText
         mSendButton = view.findViewById(R.id.button_send) as Button
+        mCurrentDevice = view.findViewById(R.id.selected_device) as TextView
     }
 
     /**
      * Set up the UI and background operations for chat.
      */
     private fun setupBluetoothService() {
-        Log.d(TAG, "setupChat()")
+        Log.d(TAG, "setupBTService()")
 
         // Initialize the array adapter for the conversation thread
-        mConversationArrayAdapter = ArrayAdapter<String>(activity, R.layout.message)
+        val templateAdapter = ArrayAdapter<String>(activity, R.layout.template_name, TEMPLATES)
 
-        mConversationView!!.adapter = mConversationArrayAdapter
+        mTemplatesListView!!.adapter = templateAdapter
+
+        mTemplatesListView!!.onItemClickListener = object : AdapterView.OnItemClickListener {
+            override fun onItemClick(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+                val template = TEMPLATES[position]
+                sendMessage(template + "#")
+            }
+        }
 
         // Initialize the compose field with a listener for the return key
         mOutEditText!!.setOnEditorActionListener(mWriteListener)
@@ -177,59 +185,19 @@ class BluetoothChatFragment : Fragment() {
     }
 
     /**
-     * Updates the status on the action bar.
-
-     * @param resId a string resource ID
-     */
-    private fun setStatus(resId: Int) {
-        val activity = activity ?: return
-        val actionBar = activity.actionBar ?: return
-        actionBar.setSubtitle(resId)
-    }
-
-    /**
-     * Updates the status on the action bar.
-
-     * @param subTitle status
-     */
-    private fun setStatus(subTitle: CharSequence) {
-        val activity = activity ?: return
-        val actionBar = activity.actionBar ?: return
-        actionBar.subtitle = subTitle
-    }
-
-    /**
      * The Handler that gets information back from the BluetoothService
      */
     private val mHandler = object : Handler() {
         override fun handleMessage(msg: Message) {
             val activity = activity
             when (msg.what) {
-                Constants.MESSAGE_STATE_CHANGE -> when (msg.arg1) {
-                    BluetoothService.STATE_CONNECTED -> {
-                        setStatus(getString(R.string.title_connected_to, mConnectedDeviceName))
-                        mConversationArrayAdapter!!.clear()
-                    }
-                    BluetoothService.STATE_CONNECTING -> setStatus(R.string.title_connecting)
-                    BluetoothService.STATE_LISTEN, BluetoothService.STATE_NONE -> setStatus(R.string.title_not_connected)
-                }
-                Constants.MESSAGE_WRITE -> {
-                    val writeBuf = msg.obj as ByteArray
-                    // construct a string from the buffer
-                    val writeMessage = String(writeBuf)
-                    mConversationArrayAdapter!!.add("Me:  " + writeMessage)
-                }
-                Constants.MESSAGE_READ -> {
-                    val readBuf = msg.obj as ByteArray
-                    // construct a string from the valid bytes in the buffer
-                    val readMessage = String(readBuf, 0, msg.arg1)
-                    mConversationArrayAdapter!!.add(mConnectedDeviceName + ":  " + readMessage)
-                }
-                Constants.MESSAGE_DEVICE_NAME -> {
+                Constants.DEVICE_SELECTED -> {
                     // save the connected device's name
                     mConnectedDeviceName = msg.data.getString(Constants.DEVICE_NAME)
                     if (null != activity) {
-                        Toast.makeText(activity, "Connected to " + mConnectedDeviceName!!, Toast.LENGTH_SHORT).show()
+                        val message = "Connected to " + mConnectedDeviceName!!
+                        Toast.makeText(activity, message, Toast.LENGTH_SHORT).show()
+                        mCurrentDevice!!.text = message;
                     }
                 }
                 Constants.MESSAGE_TOAST -> if (null != activity) {
@@ -281,7 +249,8 @@ class BluetoothChatFragment : Fragment() {
         // Get the BluetoothDevice object
         Log.i(TAG, "Connecting to device by $address")
 
-        mService!!.sendMessage(mBluetoothAdapter!!.getRemoteDevice(address), secure, "rainbow#");
+        mService!!.selectDevice(mBluetoothAdapter!!.getRemoteDevice(address));
+
     }
 
     override fun onCreateOptionsMenu(menu: Menu?, inflater: MenuInflater?) {
@@ -313,7 +282,7 @@ class BluetoothChatFragment : Fragment() {
 
     companion object {
 
-        private val TAG = "BluetoothChatFragment"
+        private val TAG = "LEDTemplatesFragment"
 
         // Intent request codes
         private val REQUEST_CONNECT_DEVICE_SECURE = 1

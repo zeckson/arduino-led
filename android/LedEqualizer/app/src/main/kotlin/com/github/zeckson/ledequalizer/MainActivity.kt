@@ -29,7 +29,7 @@ class MainActivity : SampleActivityBase() {
 
         if (savedInstanceState == null) {
             val transaction = supportFragmentManager.beginTransaction()
-            val fragment = BluetoothChatFragment()
+            val fragment = LEDTemplatesFragment()
             transaction.replace(R.id.sample_content_fragment, fragment)
             transaction.commit()
         }

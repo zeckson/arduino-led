@@ -39,17 +39,14 @@ class BluetoothService
         Log.d(TAG, "start")
     }
 
-    /**
-     * Start the ConnectThread to initiate a connection to a remote device.
+    @Synchronized fun selectDevice(device: BluetoothDevice) {
+        currentConnectedDevice = device
+        deviceSelected(device)
+    }
 
-     * @param device The BluetoothDevice to connect
-     * *
-     * @param secure Socket Security type - Secure (true) , Insecure (false)
-     */
-    @Synchronized fun sendMessage(device: BluetoothDevice, secure: Boolean, message: String) {
+
+    @Synchronized private fun sendMessage(device: BluetoothDevice, secure: Boolean, message: String) {
         Log.d(TAG, "connect to: " + device)
-
-        currentConnectedDevice = device;
 
         // Start the thread to connect with the given device
         MessageThread(device, secure, message).start()
@@ -64,20 +61,24 @@ class BluetoothService
         }
     }
 
-    /**
-     * Start the ConnectedThread to begin managing a Bluetooth connection
-
-     * @param socket The BluetoothSocket on which the connection was made
-     * *
-     * @param device The BluetoothDevice that has been connected
-     */
-    @Synchronized fun messageSent(device: BluetoothDevice, socketType: String) {
-        Log.d(TAG, "sent message, Socket Type:" + socketType)
+    @Synchronized fun deviceSelected(device: BluetoothDevice) {
+        Log.d(TAG, "selected device ${device.name}")
 
         // Send the name of the connected device back to the UI Activity
-        val msg = mHandler.obtainMessage(Constants.MESSAGE_DEVICE_NAME)
+        val msg = mHandler.obtainMessage(Constants.DEVICE_SELECTED)
         val bundle = Bundle()
         bundle.putString(Constants.DEVICE_NAME, device.name)
+        msg.data = bundle
+        mHandler.sendMessage(msg)
+    }
+
+    @Synchronized fun messageSent(device: BluetoothDevice, socketType: String, message: String) {
+        Log.d(TAG, "sent message, Socket Type: $socketType to ${device.name}")
+
+        // Send the name of the connected device back to the UI Activity
+        val msg = mHandler.obtainMessage(Constants.MESSAGE_TOAST)
+        val bundle = Bundle()
+        bundle.putString(Constants.TOAST, message)
         msg.data = bundle
         mHandler.sendMessage(msg)
     }
@@ -166,7 +167,7 @@ class BluetoothService
                 Log.e(TAG, "close() of connect $mSocketType socket failed", e)
             }
 
-            messageSent(mmDevice, mSocketType)
+            messageSent(mmDevice, mSocketType, message)
         }
 
     }
