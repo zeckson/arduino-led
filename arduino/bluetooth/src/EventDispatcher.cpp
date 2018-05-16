@@ -8,6 +8,9 @@ static const char *const EMPTY_MSG = "";
 const int INIT = 0;
 const int READ = 1;
 const int LED = 2;
+
+const int ARDUINO_LED_PIN = 13;
+
 int state = INIT;
 int counter = 0;
 String message;
@@ -34,6 +37,17 @@ String str(const char *chars) {
   return String(chars);
 }
 
+const int DEFAULT_DELAY = 1000;
+void blink(const int times) {
+  pinMode(ARDUINO_LED_PIN, OUTPUT);
+  for (int i = 0; i < times; i++) {
+    digitalWrite(ARDUINO_LED_PIN, HIGH);       // sets the digital pin 13 on
+    delay(DEFAULT_DELAY);                  // waits for a second
+    digitalWrite(ARDUINO_LED_PIN, LOW);        // sets the digital pin 13 off
+    delay(DEFAULT_DELAY);
+  }
+}
+
 void setup() {
   Serial.begin(9600);
 
@@ -42,6 +56,8 @@ void setup() {
   blue->init();
 
   configureStrip();
+
+  blink(3);
 }
 
 

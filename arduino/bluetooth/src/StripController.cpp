@@ -34,12 +34,6 @@ uint8_t red(uint32_t c);
 uint8_t green(uint32_t c);
 uint8_t blue(uint32_t c);
 
-void configureStrip() {
-  // End of trinket special code
-  strip.setBrightness(BRIGHTNESS);
-  strip.begin();
-  strip.show(); // Initialize all pixels to 'off'
-}
 // Input a value 0 to 255 to get a color value.
 // The colours are a transition r - g - b - back to r.
 uint32_t Wheel(byte WheelPos);
@@ -342,4 +336,12 @@ int findShow(const char *name) {
     }
   }
   return index;
+}
+
+void configureStrip() {
+  // End of trinket special code
+  strip.setBrightness(BRIGHTNESS);
+  strip.begin();
+  strip.show(); // Initialize all pixels to 'off'
+  startShow(8); // Show rainbow
 }
