@@ -16,3 +16,4 @@ LED lights controlled with bluetooth, LED, arduino
 ## Additional info
 Everything works by COM protocol, tested on `nanoatmega328`
 Project is based on [platfromio](http://docs.platformio.org/en/latest/)
+LED Strip: RGB LED STRIP IP65 5V [example](https://www.adafruit.com/product/1138?length=1)
