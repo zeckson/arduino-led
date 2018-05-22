@@ -38,17 +38,16 @@ String str(const char *chars) {
 }
 
 const int DEFAULT_DELAY = 1000;
-void blink(const int times) {
-  pinMode(ARDUINO_LED_PIN, OUTPUT);
-  for (int i = 0; i < times; i++) {
-    digitalWrite(ARDUINO_LED_PIN, HIGH);       // sets the digital pin 13 on
-    delay(DEFAULT_DELAY);                  // waits for a second
-    digitalWrite(ARDUINO_LED_PIN, LOW);        // sets the digital pin 13 off
-    delay(DEFAULT_DELAY);
-  }
+void blink() {
+  digitalWrite(ARDUINO_LED_PIN, HIGH);       // sets the digital pin 13 on
+  delay(DEFAULT_DELAY);                  // waits for a second
+  digitalWrite(ARDUINO_LED_PIN, LOW);        // sets the digital pin 13 off
+  delay(DEFAULT_DELAY);
 }
 
 void setup() {
+  pinMode(ARDUINO_LED_PIN, OUTPUT);
+  blink();
   Serial.begin(9600);
 
   while (!Serial) { ; // wait for serial port to connect. Needed for Leonardo only
@@ -57,7 +56,7 @@ void setup() {
 
   configureStrip();
 
-  blink(3);
+  blink();
 }
 
 
@@ -70,7 +69,8 @@ void loop() {
     case READ:
       message = readStream(Serial);
       if (message != EMPTY_MSG) {
-        Serial.println("Send command to BT: " + message);
+        Serial.print("Send command to BT: ");
+        Serial.println(message);
         blue->print(message);
         delay(1500);
         Serial.println(blue->readFully());
@@ -80,9 +80,10 @@ void loop() {
       message = blue->read();
       if (message != EMPTY_MSG) {
         message = message.substring(0, message.length() - 1);
-        Serial.println("Message from BT:" + message);
+        Serial.print("Message from BT:");
+        Serial.println(message);
         current_show = findShow(message.c_str());
-        if(current_show >= 0) {
+        if (current_show >= 0) {
           state = LED;
         }
       }
@@ -92,7 +93,9 @@ void loop() {
       }
       break;
     case LED:
-      Serial.println(str("Rainbow - ") + (counter++));
+      Serial.print("Rainbow - ");
+      Serial.print(message);
+      Serial.println(counter++);
       startShow(current_show);
       if (counter >= 1) {
         counter = 0;
